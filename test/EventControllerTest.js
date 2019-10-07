@@ -1,6 +1,6 @@
 // var expect    = require("chai").expect;
 // var assert = require('chai').assert;
-import {describe} from "mocha";
+const describe = require('mocha').describe;
 
 const eventController = require('../src/controllers/EventController');
 
