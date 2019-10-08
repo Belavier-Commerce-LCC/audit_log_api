@@ -1,8 +1,3 @@
-//Connecting to ElasticSearch
-const elasticSettings = require('./config/elasticSearch')
-const {Client} = require('@elastic/elasticsearch')
-const elasticClient = new Client(elasticSettings.options)
-
 // Require the framework and instantiate it
 const fastify = require('fastify')({
 	logger: true
@@ -10,10 +5,6 @@ const fastify = require('fastify')({
 
 const cors = require('cors')
 fastify.use(cors())
-const mongoose = require('mongoose')
-mongoose.connect('mongodb://root:example@localhost/')
-	.then(() => console.log('MongoDB connected…'))
-	.catch(err => console.log(err))
 
 const routes = require('./routes')
 
@@ -30,25 +21,6 @@ routes.forEach((route, index) => {
 fastify.get('/', async (request, reply) => {
 	reply.redirect('/documentation')
 })
-
-/*fastify.get('/api/events', async (request, reply) => {
-	const { body } =  await elasticClient.search({
-		index: 'audit-log-index',
-		body: {
-			query: {
-				match: {
-					action: 'Insert'
-				}
-			}
-		}
-	})
-	return body.hits.hits
-})
-
-fastify.get('/api/test', async (request, reply) => {
-	const { body } =  await elasticClient.ping()
-	return body
-}) */
 
 
 // Run the server!

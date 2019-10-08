@@ -37,7 +37,7 @@ exports.getSingleEvent = async (req, reply) => {
 exports.addEvent = function (req, reply) {
 	try {
 		elasticClient.index({
-			index: 'audit-log-index',
+			index: elasticSettings.request_options.index,
 			body: req.body
 		}, (err, body) => {
 			if (!err) {

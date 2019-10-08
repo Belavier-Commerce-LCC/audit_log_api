@@ -12,11 +12,11 @@
   "license": "ISC",
   "dependencies": {
     "@elastic/elasticsearch": "^7.4.0",
+    "amqplib": "^0.5.5",
     "boom": "^7.3.0",
     "chai": "^4.2.0",
     "cors": "^2.8.5",
     "fastify": "^2.8.0",
-    "fastify-elasticsearch": "^1.0.0",
     "fastify-swagger": "^2.4.0",
     "mocha": "^6.2.1",
     "mongoose": "^5.7.1",

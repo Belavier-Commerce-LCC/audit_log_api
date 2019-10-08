@@ -20,6 +20,12 @@ exports.addEventSchema = {
 					id: {type: 'string'},     // Unique eventid for grouping
 					name: {type: 'string'},   // Update Customer Address
 					group: {type: 'string'},  // Update Customer Address
+					action: {type: 'string'},       // update
+					oldValue: {type: 'string'},     // 141207  - some original value
+					newValue: {type: 'string'},     // 141205 - some changed value
+					ip: {type: 'string'},    // Source IP address
+					description: {type: 'string'},   	// Message with result
+					created: {type: 'string'},      // Date of event
 				}
 			},
 			entity: {
@@ -38,12 +44,22 @@ exports.addEventSchema = {
 					group: {type: 'string'}, // Customer
 				}
 			},
-			action: {type: 'string'},       // update
-			oldValue: {type: 'string'},     // 141207  - some original value
-			newValue: {type: 'string'},     // 141205 - some changed value
-			ipAddress: {type: 'string'},    // Source IP address
-			result: {type: 'string'},   	// Message with result
-			created: {type: 'string'},      // Date of event
+			app: {
+				type: 'object',
+				properties: {
+					name: { type: 'string' },
+					server: { type: 'string' },
+					version: {type: 'string' },
+					build: {type: 'string' },
+				}
+			},
+			request: {
+				type: 'object',
+				properties: {
+					ip: {type: 'string' }, //IP from request
+					timestamp: { type: 'string' } //Current timestamp on api server
+				}
+			},
 			__v: {type: 'number'}
 		}
 	},

@@ -7,3 +7,7 @@ exports.options = {
 	sniffOnStart: false,
 	keepAlive: true
 }
+
+exports.request_options = {
+	index: 'audit-log-index'
+}
