@@ -1,57 +1,46 @@
 #!/usr/bin/env node
 const rabbitmq = require('./config/rabbitmq')
-const elasticSettings = require('./config/elasticSearch')
-const {Client} = require('@elastic/elasticsearch')
-const elasticClient = new Client(elasticSettings.options)
-var amqp = require('amqplib/callback_api');
+const elastic = require('./controllers/elasticSearchController')
+const amqp = require('amqplib/callback_api');
 
-async function save (message) {
-	message.request = {
-		ip: '',
-		timestamp: new Date().toISOString()
+elastic.elasticClient.ping((err => { //Check ElasticSearch connection
+	if (err) {
+		throw err
 	}
-	await elasticClient.index({
-		index: elasticSettings.request_options.index,
-		body: message
-	})
-	console.log('[+] Writed message to Audit Log')
-}
 
-async function save_error (message) {
-	message.request = {
-		ip: '',
-		timestamp: new Date().toISOString()
-	}
-	await elasticClient.index({
-		index: elasticSettings.request_options.error_index,
-		body: message
-	})
-	console.log('[+] Error message to Audit Log')
-}
-
-amqp.connect(rabbitmq.options.server, function (error0, connection) {
-	if (error0) {
-		throw error0;
-	}
-	connection.createChannel(function (error1, channel) {
-		if (error1) {
-			throw error1;
+	elastic.check_indices().then((result) => {
+		if (result.statusCode != 200) {
+			elastic.create_index().then(() => {
+				elastic.set_mappings(elastic.mapping()).catch(console.log)
+			})
 		}
+	})
 
-		const queue = rabbitmq.options.queue
+	amqp.connect(rabbitmq.options.server, function (error0, connection) {
+		if (error0) {
+			throw error0;
+		}
+		connection.createChannel(function (error1, channel) {
+			if (error1) {
+				throw error1;
+			}
 
-		channel.assertQueue(queue, {
-			durable: false
-		});
+			const queue = rabbitmq.options.queue
 
-		console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", queue);
+			channel.assertQueue(queue, {
+				durable: false
+			});
 
-		channel.consume(queue, function (msg) {
+			console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", queue);
 
-			save(JSON.parse(msg.content.toString())).catch(save_error)
+			channel.consume(queue, function (msg) {
 
-		}, {
-			noAck: true
+				elastic.save(JSON.parse(msg.content.toString())).catch(elastic.save_error)
+
+			}, {
+				noAck: true
+			});
 		});
 	});
-});
+
+}))
