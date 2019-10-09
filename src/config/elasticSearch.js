@@ -9,5 +9,6 @@ exports.options = {
 }
 
 exports.request_options = {
-	index: 'audit-log-index'
+	index: 'audit-log-index',
+	error_index: 'audit-log-errors'
 }
