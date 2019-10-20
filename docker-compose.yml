@@ -1,7 +1,7 @@
 version: '3.6'
 
 services:
-  app:
+  audit_log_api:
     build: .
     ports:
       - "3000:3000"
@@ -15,3 +15,4 @@ services:
       - ES_ERROR_INDEX=audit-log-errors
       - RABBITMQ_SERVER=amqp://rabbitServer
       - RABBITMQ_QUEUE=audit_log
+      - API_BASE_URL=localhost:3000

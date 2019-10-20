@@ -2,10 +2,10 @@
   "name": "audit_log_api_elasticsearch",
   "version": "1.0.0",
   "description": "",
-  "author": "audit_log_api_elasticsearch",
+  "author": "Denis Vagner",
   "main": "index.js",
   "scripts": {
-    "start": "./node_modules/nodemon/bin/nodemon.js ./src/index.js",
+    "start": "node ./src/index.js",
     "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "keywords": [],
@@ -19,8 +19,7 @@
     "fastify": "^2.8.0",
     "fastify-swagger": "^2.4.0",
     "mocha": "^6.2.1",
-    "mongoose": "^5.7.1",
-    "nodemon": "^1.19.2"
+    "mongoose": "^5.7.1"
   },
   "devDependencies": {
     "coveralls": "^3.0.6",
