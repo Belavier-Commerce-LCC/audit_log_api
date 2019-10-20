@@ -2,13 +2,13 @@
   "name": "audit_log_api_elasticsearch",
   "version": "1.0.0",
   "description": "",
+  "author": "audit_log_api_elasticsearch",
   "main": "index.js",
   "scripts": {
     "start": "./node_modules/nodemon/bin/nodemon.js ./src/index.js",
     "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "keywords": [],
-  "author": "Denis Vagner",
   "license": "ISC",
   "dependencies": {
     "@elastic/elasticsearch": "^7.4.0",

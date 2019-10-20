@@ -1,0 +1,17 @@
+version: '3.6'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - ES_NODE=http://es1:9200
+      - ES_MAX_RETRIES=5
+      - ES_REQUEST_TIMEOUT=1000
+      - ES_SNIF_ON_START=false
+      - ES_KEEP_ALIVE=true
+      - ES_INDEX=audit-log-index
+      - ES_ERROR_INDEX=audit-log-errors
+      - RABBITMQ_SERVER=amqp://rabbitServer
+      - RABBITMQ_QUEUE=audit_log

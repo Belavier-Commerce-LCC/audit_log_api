@@ -1,20 +1,22 @@
 // Import our Controllers
-const eventController = require('../controllers/eventController')
+const eventController = require(`${__base}/controllers/EventController`)
 const documentation = require('./documentation/eventApi')
+
 
 const routes = [
 	{
-		method: 'GET',
+		method: 'POST',
 		url: '/api/events',
 		handler: eventController.getEvents,
-		//schema: documentation.getEventsSchema
+		schema: documentation.getEventsSchema
 	},
 	{
 		method: 'GET',
-		url: '/api/event/:id',
-		handler: eventController.getSingleEvent,
-		schema: documentation.getEventSchema
+		url: '/api/field_values/:field',
+		handler: eventController.getFieldValues,
+		schema: documentation.getFieldValuesSchema
 	},
+	/*
 	{
 		method: 'POST',
 		url: '/api/event',
@@ -37,7 +39,7 @@ const routes = [
 		method: 'GET',
 		url: '/api/test',
 		handler: eventController.testConnection
-	},
+	},*/
 ]
 
 module.exports = routes

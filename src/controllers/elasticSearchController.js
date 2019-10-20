@@ -1,21 +1,79 @@
-const elasticSettings = require('../config/elasticSearch')
+const elasticSettings = require(`${__base}/config/elasticSearch`)
 const {Client} = require('@elastic/elasticsearch')
 const elasticClient = new Client(elasticSettings.options)
 exports.elasticClient = elasticClient
+
 
 exports.save = async (message) => {
 	message.request = {
 		ip: '',
 		timestamp: new Date().toISOString()
 	}
-	await elasticClient.index({
+	const queryObJ = {
+		query: {
+			bool: {
+				must: [
+					{
+						term: {
+							id: message.id
+						}
+					},
+					{
+						term: {
+							"entity.id": message.entity.id
+						}
+					},
+					{
+						term: {
+							"entity.name.keyword": message.entity.name
+						}
+					},
+					{
+						term: {
+							"entity.group.keyword": message.entity.group
+						}
+					}
+				]
+			}
+		}
+	}
+	const exists = await elasticClient.search({
 		index: elasticSettings.request_options.index,
-		body: message
+		body: queryObJ
 	})
-	console.log('[+] Writed message to Audit Log')
+
+	const recordCount = exists.body.hits.total.value;
+
+	if (recordCount === 0) {
+		await elasticClient.index({
+			index: elasticSettings.request_options.index,
+			body: message
+		})
+		await elasticClient.indices.refresh({index: elasticSettings.request_options.index})
+
+		console.log('[+] Writed message to Audit Log')
+	} else {
+		const existRecords = exists.body.hits.hits;
+		let changes = existRecords[0]._source.changes
+		message.changes.forEach((el) => {
+			changes.push(el)
+		})
+
+		await elasticClient.update({
+			index: elasticSettings.request_options.index,
+			id: existRecords[0]._id,
+			body: {
+				doc: {
+					changes: changes
+				}
+			}
+		})
+		console.log('[+] Updated message ${existRecords[0]._id} to Audit Log')
+	}
 }
 
 exports.save_error = async (message) => {
+	console.log(message)
 	message.request = {
 		ip: '',
 		timestamp: new Date().toISOString()
@@ -62,6 +120,10 @@ exports.set_mappings = async (mapping) => {
 
 exports.mapping = () => {
 	return {
+		"id": {
+			"type": "keyword",
+			"ignore_above": 256
+		},
 		"actor": {
 			"properties": {
 				"group": {
@@ -74,13 +136,8 @@ exports.mapping = () => {
 					}
 				},
 				"id": {
-					"type": "text",
-					"fields": {
-						"keyword": {
-							"type": "keyword",
-							"ignore_above": 256
-						}
-					}
+					"type": "keyword",
+					"ignore_above": 256
 				},
 				"name": {
 					"type": "text",
@@ -154,13 +211,8 @@ exports.mapping = () => {
 					}
 				},
 				"id": {
-					"type": "text",
-					"fields": {
-						"keyword": {
-							"type": "keyword",
-							"ignore_above": 256
-						}
-					}
+					"type": "keyword",
+					"ignore_above": 256
 				},
 				"name": {
 					"type": "text",
@@ -173,9 +225,10 @@ exports.mapping = () => {
 				}
 			}
 		},
-		"event": {
+		"changes": {
+			"type": "nested",
 			"properties": {
-				"action": {
+				"name": {
 					"type": "text",
 					"fields": {
 						"keyword": {
@@ -188,33 +241,6 @@ exports.mapping = () => {
 					"type": "date",
 					"format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd"
 				},
-				"description": {
-					"type": "text",
-					"fields": {
-						"keyword": {
-							"type": "keyword",
-							"ignore_above": 256
-						}
-					}
-				},
-				"group": {
-					"type": "text",
-					"fields": {
-						"keyword": {
-							"type": "keyword",
-							"ignore_above": 256
-						}
-					}
-				},
-				"id": {
-					"type": "text",
-					"fields": {
-						"keyword": {
-							"type": "keyword",
-							"ignore_above": 256
-						}
-					}
-				},
 				"ip": {
 					"type": "text",
 					"fields": {
@@ -224,7 +250,12 @@ exports.mapping = () => {
 						}
 					}
 				},
-				"name": {
+				"groupId":
+					{
+						"type": "keyword",
+						"ignore_above": 256
+					},
+				"groupName": {
 					"type": "text",
 					"fields": {
 						"keyword": {
@@ -251,37 +282,6 @@ exports.mapping = () => {
 						}
 					}
 				},
-			}
-		},
-		"related": {
-			"properties": {
-				"group": {
-					"type": "text",
-					"fields": {
-						"keyword": {
-							"type": "keyword",
-							"ignore_above": 256
-						}
-					}
-				},
-				"id": {
-					"type": "text",
-					"fields": {
-						"keyword": {
-							"type": "keyword",
-							"ignore_above": 256
-						}
-					}
-				},
-				"name": {
-					"type": "text",
-					"fields": {
-						"keyword": {
-							"type": "keyword",
-							"ignore_above": 256
-						}
-					}
-				}
 			}
 		},
 		"request": {

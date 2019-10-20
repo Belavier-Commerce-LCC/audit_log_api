@@ -3,6 +3,8 @@ const fastify = require('fastify')({
 	logger: true
 })
 
+global.__base = __dirname;
+
 const cors = require('cors')
 fastify.use(cors())
 
@@ -26,7 +28,7 @@ fastify.get('/', async (request, reply) => {
 // Run the server!
 const start = async () => {
 	try {
-		await fastify.listen(3001)
+		await fastify.listen(3000, '0.0.0.0')
 		fastify.swagger()
 		fastify.log.info(`server listening on ${fastify.server.address().port}`)
 	} catch (err) {

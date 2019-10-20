@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-const rabbitmq = require('./config/rabbitmq')
-const elastic = require('./controllers/elasticSearchController')
+const rabbitmq = require('${__dirname}/config/rabbitmq')
+const elastic = require('${__dirname}/controllers/elasticSearchController')
 const amqp = require('amqplib/callback_api');
 
 elastic.elasticClient.ping((err => { //Check ElasticSearch connection
@@ -33,12 +33,18 @@ elastic.elasticClient.ping((err => { //Check ElasticSearch connection
 
 			console.log(" [*] Waiting for messages in %s. To exit press CTRL+C", queue);
 
+			channel.prefetch(1)
 			channel.consume(queue, function (msg) {
 
-				elastic.save(JSON.parse(msg.content.toString())).catch(elastic.save_error)
+				elastic.save(JSON.parse(msg.content.toString()))
+					.then(() => {
+						console.log('Saved')
+						channel.ack(msg)
+					})
+					.catch(elastic.save_error)
 
 			}, {
-				noAck: true
+				noAck: false
 			});
 		});
 	});

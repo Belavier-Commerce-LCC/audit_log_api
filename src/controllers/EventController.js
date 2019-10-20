@@ -1,5 +1,5 @@
 //Connecting to ElasticSearch
-const elasticSettings = require('../config/elasticSearch')
+const elasticSettings = require(`${__base}/config/elasticSearch`)
 const {Client} = require('@elastic/elasticsearch')
 const elasticClient = new Client(elasticSettings.options)
 
@@ -7,21 +7,52 @@ const elasticClient = new Client(elasticSettings.options)
 const boom = require('boom')
 
 // Get Data Models
-const Event = require('../models/Event')
+const Event = require(`${__base}/models/Event`)
 
 // Get all cars
 exports.getEvents = async (req, reply) => {
 	try {
 		const {body} = await elasticClient.search({
-			index: 'audit-log-index',
-			body: {}
+			index: elasticSettings.request_options.index,
+			body: req.body
 		})
-		return body.hits.hits
+		console.log(body.hits.hits)
+		return body
 	} catch (err) {
 		throw boom.boomify(err)
 	}
 }
 
+exports.getFieldValues = async (req, reply) => {
+	try {
+		const {body} = await elasticClient.search({
+			index: elasticSettings.request_options.index,
+			body: {
+				"aggs": {
+					"fieldValues": {
+						"terms": {
+							"field": req.params.field+".keyword"
+						}
+					}
+				}
+			}
+		})
+		let result = [];
+		const relatedNames = body.aggregations.fieldValues.buckets;
+		relatedNames.forEach((el)=> {
+			result.push(el.key)
+		})
+
+		return result
+	} catch (err) {
+		throw boom.boomify(err)
+	}
+}
+
+
+
+
+/*
 // Get single event by ID
 exports.getSingleEvent = async (req, reply) => {
 	try {
@@ -98,3 +129,4 @@ exports.findEvents = async (req, reply) => {
 		throw boom.boomify(err)
 	}
 }
+ */
