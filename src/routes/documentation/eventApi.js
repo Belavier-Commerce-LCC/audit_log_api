@@ -200,9 +200,14 @@ exports.getEventsSchema = {
   description: 'Get all events',
   tags: ['events'],
   summary: 'Get all events',
-  body: {
-    type: 'object',
-    properties: {}
+  querystring: {
+    limit: { type: 'integer' },
+    offset: { type: 'integer' },
+    sort: { type: 'string' },
+    order: { type: 'string' },
+    filter: { type: 'string' },
+    dateFrom: { type: 'string'},
+    dateTo: { type: 'string'},
   },
   /*response: {
     200: {

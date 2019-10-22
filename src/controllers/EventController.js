@@ -12,10 +12,98 @@ const Event = require(`${__base}/models/Event`)
 
 // Get all cars
 exports.getEvents = async (req, reply) => {
+  /**
+   * Limit displayed records
+   * @type integer limit
+   */
+  let limit = req.query.limit || 10
+  /**
+   * Offset records
+   * @type integer offset
+   */
+  const offset = req.query.offset || 0
+  /**
+   * Field name for sorting
+   * @type string sort
+   */
+  const sort = req.query.sort
+  /**
+   * Order value for sorting
+   * @type string order
+   */
+  const order = req.query.order || 'ASC'
+  /**
+   * Filter string
+   * || = 'OR' operator
+   *  : = equal operator
+   *  , = 'AND' operator
+   *  example: entity.name:Product,entity.id:300||entity.name:User
+   *  description: Get fields where (entity.name=Product AND entity.id=300) OR (entity.name=User)
+   * @type string filter
+   */
+  const filter = req.query.filter
+  /**
+   * Start date for filter by date range
+   * @type string dateFrom
+   */
+  let dateFrom = req.query.dateFrom
+  /**
+   * End date for filter by date range
+   * @type string dateTo
+   */
+  let dateTo = req.query.dateTo
+
+  let requestBody = {}
+  let query = {
+    'query': {
+      'bool': {
+        'should': []
+      }
+    }
+  }
+
+  const orParts = filter.toString().split('||')
+  orParts.forEach((orPart) => {
+    let andParts = orPart.split(',')
+    let subquery = {
+      'bool': {
+        'must': []
+      }
+    }
+    andParts.forEach((andPart) => {
+      let item = andPart.split(':')
+      if (item.length === 2) {
+        subquery.bool.must.push(
+          { 'term': { [item[0]]: item[1] } }
+        )
+      }
+    })
+    if (subquery.bool.must.length > 0) {
+      query.query.bool.should.push(subquery)
+    }
+  })
+  if (query.query.bool.should.length > 0) {
+    requestBody = query
+  }
+
+  if (typeof order != 'undefined' && typeof sort != 'undefined') {
+    requestBody.sort = {
+      [sort]: order
+    }
+  }
+
+  if (limit > 1000) {
+    limit = 1000
+  }
+  requestBody.size = limit
+  requestBody.from = offset
+
+  console.log(JSON.stringify(requestBody))
+
   try {
     const { body } = await elasticClient.search({
       index: elasticSettings.request_options.index,
-      body: req.body
+      body: requestBody
     })
     return body
   } catch (err) {
@@ -54,7 +142,7 @@ exports.getSingleEvent = async (req, reply) => {
   try {
     const id = req.params.id
 
-		const { body } = await elasticClient.search({
+    const { body } = await elasticClient.search({
       index: elasticSettings.request_options.index,
       body: {
         'query': {
@@ -81,8 +169,6 @@ exports.addEvent = async function (req, reply) {
     throw boom.boomify(err)
   }
 }
-
-
 
 /*
 // Add a new event

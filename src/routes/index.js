@@ -5,7 +5,7 @@ const documentation = require('./documentation/eventApi')
 
 const routes = [
 	{
-		method: 'POST',
+		method: 'GET',
 		url: '/api/events',
 		handler: eventController.getEvents,
 		schema: documentation.getEventsSchema
