@@ -25,6 +25,8 @@ fastify.get('/', async (request, reply) => {
 })
 
 
+//TODO add check exist ES indexes
+
 // Run the server!
 const start = async () => {
 	try {
