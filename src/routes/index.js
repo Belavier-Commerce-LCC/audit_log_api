@@ -34,7 +34,7 @@ const routes = [
 		handler: async (request, reply) => {
 			reply.redirect('/documentation')
 		},
-		//schema: documentation.rootPath
+		schema: documentation.rootPathSchema
 	}
 ]
 

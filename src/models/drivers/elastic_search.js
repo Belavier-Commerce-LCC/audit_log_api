@@ -99,7 +99,7 @@ exports.read = async (id) => {
       }
     }
   })
-  return body
+  return _prepareOutput(body)
 }
 
 //Get exist data
@@ -154,28 +154,30 @@ exports.find = async (params) => {
     }
   }
 
-  const orParts = filter.toString().split('||')
-  orParts.forEach((orPart) => {
-    let andParts = orPart.split(',')
-    let subquery = {
-      'bool': {
-        'must': []
+  if (typeof filter !== 'undefined') {
+    const orParts = filter.toString().split('||')
+    orParts.forEach((orPart) => {
+      let andParts = orPart.split(',')
+      let subquery = {
+        'bool': {
+          'must': []
+        }
       }
-    }
-    andParts.forEach((andPart) => {
-      let item = andPart.split(':')
-      if (item.length === 2) {
-        subquery.bool.must.push(
-          { 'term': { [item[0]]: item[1] } }
-        )
+      andParts.forEach((andPart) => {
+        let item = andPart.split(':')
+        if (item.length === 2) {
+          subquery.bool.must.push(
+            { 'term': { [item[0]]: item[1] } }
+          )
+        }
+      })
+      if (subquery.bool.must.length > 0) {
+        query.query.bool.should.push(subquery)
       }
     })
-    if (subquery.bool.must.length > 0) {
-      query.query.bool.should.push(subquery)
+    if (query.query.bool.should.length > 0) {
+      requestBody = query
     }
-  })
-  if (query.query.bool.should.length > 0) {
-    requestBody = query
   }
 
   if (typeof order != 'undefined' && typeof sort != 'undefined') {
