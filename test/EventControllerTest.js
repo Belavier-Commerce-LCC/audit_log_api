@@ -2,7 +2,7 @@
 // var assert = require('chai').assert;
 const describe = require('mocha').describe;
 
-const eventController = require('../src/controllers/EventController');
+const eventController = require('../src/controllers/event_controller');
 
 describe('Event Controller Test', function () {
 	describe('Get Events Test', function () {

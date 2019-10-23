@@ -1,6 +1,6 @@
 // Import our Controllers
-const eventController = require(`${__base}/controllers/EventController`)
-const documentation = require('./documentation/eventApi')
+const eventController = require(`${__base}/controllers/event_controller`)
+const documentation = require('./documentation/event_api')
 
 
 const routes = [
@@ -28,6 +28,14 @@ const routes = [
 		handler: eventController.addEvent,
 		schema: documentation.addEventSchema
 	},
+	{
+		method: 'GET',
+		url: '/',
+		handler: async (request, reply) => {
+			reply.redirect('/documentation')
+		},
+		//schema: documentation.rootPath
+	}
 ]
 
 module.exports = routes
