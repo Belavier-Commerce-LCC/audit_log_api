@@ -33,10 +33,14 @@ exports.getSingleEvent = async (req, reply) => {
 // Add a new event
 exports.addEvent = async function (req, reply) {
   try {
-    reply.type('application/json').code(204)
-    return await storageDriver.create(req.body)
+    const createResult =  await storageDriver.create(req.body)
+    if (createResult.body.result === 'created' || createResult.body.result === 'updated') {
+      return await storageDriver.read(req.body.id)
+    } else {
+      reply.type('application/json').code(400)
+      return createResult
+    }
   } catch (err) {
-    reply.type('application/json').code(503)
     throw boom.boomify(err)
   }
 }

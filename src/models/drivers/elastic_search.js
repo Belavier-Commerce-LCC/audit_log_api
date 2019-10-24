@@ -40,12 +40,12 @@ exports.create = async (data) => {
           },
           {
             term: {
-              'entity.name.keyword': data.entity.name
+              'entity.name': data.entity.name
             }
           },
           {
             term: {
-              'entity.group.keyword': data.entity.group
+              'entity.group': data.entity.group
             }
           }
         ]
@@ -60,13 +60,13 @@ exports.create = async (data) => {
   const recordCount = exists.body.hits.total.value
 
   if (recordCount === 0) {
-    await elasticClient.index({
+    const saveResult = await elasticClient.index({
       index: conf.es_request_options.index,
       body: data
     })
-    await elasticClient.indices.refresh({ index: elasticSettings.request_options.index })
-
     console.log('[+] Writed message to Audit Log')
+    await elasticClient.indices.refresh({ index: conf.es_request_options.index })
+    return saveResult
   } else {
     const existRecords = exists.body.hits.hits
     let changes = existRecords[0]._source.changes
@@ -74,7 +74,9 @@ exports.create = async (data) => {
       changes.push(el)
     })
 
-    await elasticClient.update({
+    console.log('[+] Updated message ${existRecords[0]._id} to Audit Log')
+
+    return await elasticClient.update({
       index: conf.es_request_options.index,
       id: existRecords[0]._id,
       body: {
@@ -83,7 +85,6 @@ exports.create = async (data) => {
         }
       }
     })
-    console.log('[+] Updated message ${existRecords[0]._id} to Audit Log')
   }
 }
 
@@ -94,7 +95,7 @@ exports.read = async (id) => {
     body: {
       'query': {
         'term': {
-          'id': id
+          '_id': id
         }
       }
     }
@@ -157,25 +158,70 @@ exports.find = async (params) => {
   if (typeof filter !== 'undefined') {
     const orParts = filter.toString().split('||')
     orParts.forEach((orPart) => {
-      let andParts = orPart.split(',')
+      let andObj = JSON.parse(orPart)
       let subquery = {
         'bool': {
           'must': []
         }
       }
-      andParts.forEach((andPart) => {
-        let item = andPart.split(':')
-        if (item.length === 2) {
-          subquery.bool.must.push(
-            { 'term': { [item[0]]: item[1] } }
-          )
+      for (key in andObj) {
+        if (Array.isArray(andObj[key])) {
+          //is array
+          let subquery2 = {};
+          if (key.includes('changes')) {
+            subquery2 = {
+              'nested': {
+                path: 'changes',
+                query: {
+                  'bool': {
+                    'should': []
+                  }
+                }
+              }
+            }
+          } else {
+            subquery2 = {
+              'bool': {
+                'should': []
+              }
+            }
+          }
+          andObj[key].forEach((item) => {
+            if (key.includes('changes')) {
+              subquery2.nested.query.bool.should.push({
+                'term': { [key]: item }
+              })
+            } else {
+              subquery2.bool.should.push({
+                'term': { [key]: item }
+              })
+            }
+          })
+
+          subquery.bool.must.push(subquery2)
+        } else {
+            subquery.bool.must.push(
+              { 'term': { [key]: andObj[key] } }
+            )
         }
-      })
+      }
+
+      const range = _get_range_filter(dateFrom, dateTo)
+      if (typeof range != 'undefined') {
+        subquery.bool.must.push(range)
+      }
+
       if (subquery.bool.must.length > 0) {
         query.query.bool.should.push(subquery)
       }
     })
     if (query.query.bool.should.length > 0) {
+      requestBody = query
+    }
+  } else {
+    const range = _get_range_filter(dateFrom, dateTo)
+    if (typeof range != 'undefined') {
+      query.query = range
       requestBody = query
     }
   }
@@ -192,7 +238,6 @@ exports.find = async (params) => {
   requestBody.size = limit
   requestBody.from = offset
 
-  console.log(JSON.stringify(requestBody))
 
   try {
     const { body } = await elasticClient.search({
@@ -236,6 +281,24 @@ exports.getFieldValues = async (fieldName) => {
   return result
 }
 
+_get_range_filter = (dateFrom, dateTo) => {
+  if (typeof dateFrom != 'undefined' || typeof dateTo != 'undefined') {
+    let range = {
+      'range': {
+        'request.timestamp': {}
+      }
+    }
+    if (typeof dateFrom != 'undefined') {
+      range.range['request.timestamp'].gte = dateFrom
+    }
+    if (typeof dateTo != 'undefined') {
+      range.range['request.timestamp'].lte = dateTo
+    }
+    return range
+  }
+  return undefined
+}
+
 _prepareOutput = (data) => {
   let result = {
     total: data.hits.total.value,
@@ -244,6 +307,7 @@ _prepareOutput = (data) => {
   }
   const hits = data.hits.hits
   hits.forEach((hit) => {
+    hit._source._id = hit._id
     result.items.push(hit._source)
   })
   result.items_count = result.items.length
