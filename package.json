@@ -1,11 +1,11 @@
 {
-  "name": "audit_log_api_elasticsearch",
+  "name": "audit_log_api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Audit Log API",
   "author": "Denis Vagner",
   "main": "index.js",
   "scripts": {
-    "start": "node ./src/index.js",
+    "start": "concurrently --kill-others \"node ./src/index.js\" \"node ./rabbit-src/index.js\"",
     "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "keywords": [],
@@ -13,8 +13,10 @@
   "dependencies": {
     "@elastic/elasticsearch": "^7.4.0",
     "amqplib": "^0.5.5",
+    "axios": "^0.19.0",
     "boom": "^7.3.0",
     "chai": "^4.2.0",
+    "concurrently": "^5.0.0",
     "cors": "^2.8.5",
     "fastify": "^2.8.0",
     "fastify-swagger": "^2.4.0",

@@ -4,17 +4,22 @@ const elasticClient = new Client(conf.elasticSearch)
 //Load on start server
 exports.init = async () => {
   console.log('Init Storage')
-  const checkResult = await _check_indices()
-  if (!checkResult.body) {
-    const createResult = await _create_index()
-    if (createResult.statusCode === 200) {
-      const setMappingResult = await _set_mappings(_mapping())
-      if (setMappingResult.statusCode !== 200) {
-        console.log(setMappingResult)
+  const ping = await elasticClient.ping()
+  if (ping) {
+    const checkResult = await _check_indices()
+    if (!checkResult.body) {
+      const createResult = await _create_index()
+      if (createResult.statusCode === 200) {
+        const setMappingResult = await _set_mappings(_mapping())
+        if (setMappingResult.statusCode !== 200) {
+          console.log(setMappingResult)
+        }
+      } else {
+        console.log(createResult)
       }
-    } else {
-      console.log(createResult)
     }
+  } else {
+    throw 'Not connection to ElasticSearch server: '
   }
 }
 

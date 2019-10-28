@@ -1,3 +1,52 @@
+_mainShema = {
+  id: { type: 'string' },
+  actor: {
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+      name: { type: 'string' },
+      group: { type: 'string' },
+    }
+  },
+  entity: {
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+      name: { type: 'string' },
+      group: { type: 'string' },
+    }
+  },
+  app: {
+    type: 'object',
+    properties: {
+      name: { type: 'string' },
+      server: { type: 'string' },
+      version: { type: 'string' },
+      build: { type: 'string' },
+    }
+  },
+  changes: {
+    type: 'array',
+    items: {
+      type: 'object',
+      properties: {
+        'name': { type: 'string' },
+        'groupId': { type: 'string' },
+        'groupName': { type: 'string' },
+        'oldValue': { type: 'string' },
+        'newValue': { type: 'string' },
+      }
+    }
+  },
+  request: {
+    type: 'object',
+    properties: {
+      ip: { type: 'string' },
+      timestamp: { type: 'string' }
+    }
+  },
+}
+
 exports.addEventSchema = {
   description: 'Create a new event',
   tags: ['events'],
@@ -18,7 +67,7 @@ exports.addEventSchema = {
         type: 'array',
         items: {
           type: 'object',
-					properties: {
+          properties: {
             groupId: { type: 'string' },     // Unique eventid for grouping
             name: { type: 'string' },   // Update Customer Address
             groupName: { type: 'string' },  // Update Customer Address
@@ -79,14 +128,13 @@ exports.getEventSchema = {
       }
     }
   },
-  /*response: {
+  response: {
     200: {
       description: 'Successful response',
       type: 'object',
-      properties: {
-      }
+      properties: _mainShema
     }
-  }*/
+  }
 }
 
 exports.getEventsSchema = {
@@ -99,8 +147,8 @@ exports.getEventsSchema = {
     sort: { type: 'string' },
     order: { type: 'string' },
     filter: { type: 'string' },
-    dateFrom: { type: 'string'},
-    dateTo: { type: 'string'},
+    dateFrom: { type: 'string' },
+    dateTo: { type: 'string' },
   },
   /*response: {
     200: {
@@ -234,3 +282,4 @@ exports.getFieldValuesSchema = {
 exports.rootPathSchema = {
   hide: true
 }
+
