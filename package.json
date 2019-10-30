@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Audit Log API",
   "author": "Denis Vagner",
-  "main": "index.js",
+  "main": "api.js",
   "scripts": {
-    "start": "concurrently --kill-others \"node ./src/index.js\" \"node ./rabbit-src/index.js\"",
+    "start": "concurrently --kill-others \"node ./src/api.js\" \"node ./rabbit-src/rabbit.js\"",
     "test": "./node_modules/.bin/mocha --reporter spec"
   },
   "keywords": [],
