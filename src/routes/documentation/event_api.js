@@ -128,13 +128,13 @@ exports.getEventSchema = {
       }
     }
   },
-  response: {
+ /* response: {
     200: {
       description: 'Successful response',
       type: 'object',
       properties: _mainShema
     }
-  }
+  } */
 }
 
 exports.getEventsSchema = {
