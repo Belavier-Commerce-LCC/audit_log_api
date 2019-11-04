@@ -17,7 +17,7 @@ amqp.connect(rabbitmq.options.server, function (error0, connection) {
     const queue = rabbitmq.options.queue
 
     channel.assertQueue(queue, {
-      durable: false
+      durable: true
     })
 
     console.log(' [*] Waiting for messages in %s. To exit press CTRL+C', queue)
