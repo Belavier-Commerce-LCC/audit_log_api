@@ -2,15 +2,15 @@ const { Client } = require('@elastic/elasticsearch')
 const elasticClient = new Client(conf.elasticSearch)
 
 //Load on start server
-exports.init = async () => {
+_init_elastic = async (domain) => {
   console.log('Init Storage')
   const ping = await elasticClient.ping()
   if (ping) {
-    const checkResult = await _check_indices()
+    const checkResult = await _check_indices(domain)
     if (!checkResult.body) {
-      const createResult = await _create_index()
+      const createResult = await _create_index(domain)
       if (createResult.statusCode === 200) {
-        const setMappingResult = await _set_mappings(_mapping())
+        const setMappingResult = await _set_mappings(domain, _mapping())
         if (setMappingResult.statusCode !== 200) {
           console.log(setMappingResult)
         }
@@ -24,7 +24,8 @@ exports.init = async () => {
 }
 
 //Create new record
-exports.create = async (data) => {
+exports.create = async (domain, data) => {
+  await _init_elastic(domain)
   data.request = {
     ip: '',
     timestamp: new Date().toISOString()
@@ -58,7 +59,7 @@ exports.create = async (data) => {
     }
   }
   const exists = await elasticClient.search({
-    index: conf.es_request_options.index,
+    index: domain,
     body: queryObJ
   })
 
@@ -66,11 +67,11 @@ exports.create = async (data) => {
 
   if (recordCount === 0) {
     const saveResult = await elasticClient.index({
-      index: conf.es_request_options.index,
+      index: domain,
       body: data
     })
     console.log('[+] Writed message to Audit Log')
-    await elasticClient.indices.refresh({ index: conf.es_request_options.index })
+    await elasticClient.indices.refresh({ index: domain })
     return saveResult
   } else {
     const existRecords = exists.body.hits.hits
@@ -82,7 +83,7 @@ exports.create = async (data) => {
     console.log('[+] Updated message ${existRecords[0]._id} to Audit Log')
 
     return await elasticClient.update({
-      index: conf.es_request_options.index,
+      index: domain,
       id: existRecords[0]._id,
       body: {
         doc: {
@@ -94,9 +95,10 @@ exports.create = async (data) => {
 }
 
 //Get exist data
-exports.read = async (id) => {
-  const { body } = await elasticClient.search({
-    index: conf.es_request_options.index,
+exports.read = async (domain, id) => {
+  await _init_elastic(domain)
+  const params = {
+    index: domain,
     body: {
       'query': {
         'term': {
@@ -104,12 +106,14 @@ exports.read = async (id) => {
         }
       }
     }
-  })
+  }
+  const { body } = await elasticClient.search(params)
   return _prepareOutput(body)
 }
 
 //Get exist data
-exports.find = async (params) => {
+exports.find = async (domain, params) => {
+  await _init_elastic(domain)
   /**
    * Limit displayed records
    * @type integer limit
@@ -246,7 +250,7 @@ exports.find = async (params) => {
 
   try {
     const { body } = await elasticClient.search({
-      index: conf.es_request_options.index,
+      index: domain,
       body: requestBody
     })
     return _prepareOutput(body)
@@ -265,9 +269,10 @@ exports.delete = async (id) => {
 
 }
 
-exports.getFieldValues = async (fieldName) => {
+exports.getFieldValues = async (domain, fieldName) => {
+  await _init_elastic(domain)
   const { body } = await elasticClient.search({
-    index: conf.es_request_options.index,
+    index: domain,
     body: {
       'aggs': {
         'fieldValues': {
@@ -332,30 +337,30 @@ _save_error = async (message) => {
   console.log('[+] Error message to Audit Log')
 }
 
-_check_indices = async () => {
+_check_indices = async (domain) => {
   try {
     return await elasticClient.indices.exists({
-      index: conf.es_request_options.index
+      index: domain
     })
   } catch (e) {
     console.log(e)
   }
 }
 
-_create_index = async () => {
+_create_index = async (domain) => {
   try {
     return await elasticClient.indices.create({
-      index: conf.es_request_options.index
+      index: domain
     })
   } catch (e) {
     console.log(e)
   }
 }
 
-_set_mappings = async (mapping) => {
+_set_mappings = async (domain, mapping) => {
   try {
     return await elasticClient.indices.putMapping({
-      index: conf.es_request_options.index,
+      index: domain,
       body: {
         properties: mapping
       }

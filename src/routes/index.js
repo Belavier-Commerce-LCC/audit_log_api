@@ -6,25 +6,25 @@ const documentation = require('./documentation/event_api')
 const routes = [
 	{
 		method: 'GET',
-		url: '/api/events',
+		url: '/api/events/:domain',
 		handler: eventController.getEvents,
 		schema: documentation.getEventsSchema
 	},
 	{
 		method: 'GET',
-		url: '/api/field_values/:field',
+		url: '/api/field_values/:domain/:field',
 		handler: eventController.getFieldValues,
 		schema: documentation.getFieldValuesSchema
 	},
 	{
 		method: 'GET',
-		url: '/api/event/:id',
+		url: '/api/event/:domain/:id',
 		handler: eventController.getSingleEvent,
 		schema: documentation.getEventSchema
 	},
 	{
 		method: 'POST',
-		url: '/api/event',
+		url: '/api/event/:domain',
 		handler: eventController.addEvent,
 		schema: documentation.addEventSchema
 	},

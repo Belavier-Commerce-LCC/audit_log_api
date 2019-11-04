@@ -7,8 +7,8 @@ WORKDIR ${APP_DIR}
 COPY . ${APP_DIR}
 
 COPY package*.json ${APP_DIR}
-RUN npm install
+RUN npm install && npm install pm2 -g
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["pm2-runtime", "process.yml"]

@@ -1,11 +1,11 @@
 // External Dependancies
 const boom = require('boom')
 
-
 // Get all events
 exports.getEvents = async (req, reply) => {
   try {
-  return await storageDriver.find(req)
+    const domain = req.params.domain
+    return await storageDriver.find(domain, req)
   } catch (err) {
     throw boom.boomify(err)
   }
@@ -14,7 +14,8 @@ exports.getEvents = async (req, reply) => {
 //Get Field unique values
 exports.getFieldValues = async (req, reply) => {
   try {
-    return await storageDriver.getFieldValues(req.params.field)
+    const domain = req.params.domain
+    return await storageDriver.getFieldValues(domain, req.params.field)
   } catch (err) {
     throw boom.boomify(err)
   }
@@ -24,7 +25,8 @@ exports.getFieldValues = async (req, reply) => {
 exports.getSingleEvent = async (req, reply) => {
   try {
     const id = req.params.id
-    return await storageDriver.read(id)
+    const domain = req.params.domain
+    return await storageDriver.read(domain, id)
   } catch (err) {
     throw boom.boomify(err)
   }
@@ -33,9 +35,11 @@ exports.getSingleEvent = async (req, reply) => {
 // Add a new event
 exports.addEvent = async function (req, reply) {
   try {
-    const createResult =  await storageDriver.create(req.body)
+    const domain = req.params.domain
+    const createResult = await storageDriver.create(domain, req.body)
     if (createResult.body.result === 'created' || createResult.body.result === 'updated') {
-      return await storageDriver.read(req.body.id)
+      console.log(createResult)
+      return await storageDriver.read(domain, createResult.body._id)
     } else {
       reply.type('application/json').code(400)
       return createResult

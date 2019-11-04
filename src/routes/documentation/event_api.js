@@ -51,6 +51,15 @@ exports.addEventSchema = {
   description: 'Create a new event',
   tags: ['events'],
   summary: 'Creates new event with given values',
+  params: {
+    type: 'object',
+    properties: {
+      domain: {
+        type: 'string',
+        description: 'Domain name'
+      },
+    }
+  },
   body: {
     type: 'object',
     properties: {
@@ -122,6 +131,10 @@ exports.getEventSchema = {
   params: {
     type: 'object',
     properties: {
+      domain: {
+        type: 'string',
+        description: 'Domain name'
+      },
       id: {
         type: 'string',
         description: 'event id'
@@ -141,6 +154,15 @@ exports.getEventsSchema = {
   description: 'Get all events',
   tags: ['events'],
   summary: 'Get all events',
+  params: {
+    type: 'object',
+    properties: {
+      domain: {
+        type: 'string',
+        description: 'Domain name'
+      }
+    }
+  },
   querystring: {
     limit: { type: 'integer' },
     offset: { type: 'integer' },
@@ -262,6 +284,10 @@ exports.getFieldValuesSchema = {
   params: {
     type: 'object',
     properties: {
+      domain: {
+        type: 'string',
+        description: 'Domain name'
+      },
       field: {
         type: 'string',
         description: 'Field name, example: related.name'
