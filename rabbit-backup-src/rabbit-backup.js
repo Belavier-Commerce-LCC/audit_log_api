@@ -2,7 +2,6 @@
 
 global.__base = __dirname
 const rabbitmq = require('./config/rabbitmq')
-const apiClient = require('./controllers/apiClient')
 const amqp = require('amqplib/callback_api')
 
 amqp.connect(rabbitmq.options.server, function (error0, connection) {
@@ -18,6 +17,8 @@ amqp.connect(rabbitmq.options.server, function (error0, connection) {
     const backupQueue = rabbitmq.options.backupQueue
     const mainExchange = rabbitmq.options.mainExchange
     const backupExchange = rabbitmq.options.backupExchange
+    const acceptablyLag = rabbitmq.options.acceptablyLag
+
 
     channel.assertQueue(queue, {
       durable: true,
@@ -38,23 +39,18 @@ amqp.connect(rabbitmq.options.server, function (error0, connection) {
     console.log(' [*] Waiting for messages in %s. To exit press CTRL+C', queue)
 
     channel.prefetch(1)
-    channel.consume(queue, function (msg) {
-
-      apiClient.save(JSON.parse(msg.content.toString()))
-        .then((response) => {
-          if (response.status === 200) {
-            channel.ack(msg)
-            console.log('Saved')
-          } else {
-            channel.reject(msg)
-          }
-        })
-        .catch(
-          (error) => {
-            channel.reject(msg)
-          }
-        )
-
+    channel.consume(backupQueue, function (msg) {
+      const data = JSON.parse(msg.content.toString())
+      let daysLag = 0
+      if (typeof data.request.timestamp !== "undefined") {
+        const dateCreated = new Date(data.request.timestamp);
+        const dateNow = new Date();
+         daysLag = Math.ceil(Math.abs(dateNow.getTime() - dateCreated.getTime()) / (1000 * 3600 * 24));
+      }
+      if (daysLag < acceptablyLag) {
+        channel.sendToQueue(queue, Buffer.from(msg.content.toString()))
+      }
+      channel.ack(msg)
     }, {
       noAck: false
     })

@@ -9,6 +9,6 @@ exports.save = async (message) => {
     timestamp: new Date().toISOString()
   }
 
-  return await apiClient.post(apiSettings.options.server+'/api/event/'+domain, message);
+  return await apiClient.post(apiSettings.options.server+'/api/event/'+domain, message, {strictSSL: false});
 }
 
