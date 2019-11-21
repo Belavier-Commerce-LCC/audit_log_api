@@ -26,10 +26,6 @@ _init_elastic = async (domain) => {
 //Create new record
 exports.create = async (domain, data) => {
   await _init_elastic(domain)
-  data.request = {
-    ip: '',
-    timestamp: new Date().toISOString()
-  }
   const queryObJ = {
     query: {
       bool: {
