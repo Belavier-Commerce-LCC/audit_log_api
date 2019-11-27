@@ -11,11 +11,6 @@ _init_elastic = async (domain) => {
       const createResult = await _create_index(domain)
       if (createResult.statusCode === 200) {
         const setMappingResult = await _set_mappings(domain, _mapping())
-        if (setMappingResult.statusCode !== 200) {
-          console.log(setMappingResult)
-        }
-      } else {
-        console.log(createResult)
       }
     }
   } else {
@@ -66,7 +61,6 @@ exports.create = async (domain, data) => {
       index: domain,
       body: data
     })
-    console.log('[+] Writed message to Audit Log')
     await elasticClient.indices.refresh({ index: domain })
     return saveResult
   } else {
@@ -75,9 +69,6 @@ exports.create = async (domain, data) => {
     data.changes.forEach((el) => {
       changes.push(el)
     })
-
-    console.log('[+] Updated message ${existRecords[0]._id} to Audit Log')
-
     return await elasticClient.update({
       index: domain,
       id: existRecords[0]._id,
@@ -321,7 +312,6 @@ _prepareOutput = (data) => {
 }
 
 _save_error = async (message) => {
-  console.log(message)
   message.request = {
     ip: '',
     timestamp: new Date().toISOString()
@@ -330,7 +320,6 @@ _save_error = async (message) => {
     index: conf.es_request_options.error_index,
     body: message
   })
-  console.log('[+] Error message to Audit Log')
 }
 
 _check_indices = async (domain) => {
