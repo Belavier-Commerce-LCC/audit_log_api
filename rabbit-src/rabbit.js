@@ -44,7 +44,7 @@ amqp.connect(rabbitmq.options.server, function (error0, connection) {
         .then((response) => {
           if (response.status === 200) {
             channel.ack(msg)
-            console.log('Saved')
+            //console.log('Saved')
           } else {
             channel.reject(msg)
           }
