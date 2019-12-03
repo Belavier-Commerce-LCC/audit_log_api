@@ -3,7 +3,7 @@ const elasticClient = new Client(conf.elasticSearch)
 
 //Load on start server
 _init_elastic = async (domain) => {
-  console.log('Init Storage')
+  //console.log('Init Storage')
   const ping = await elasticClient.ping()
   if (ping) {
     const checkResult = await _check_indices(domain)
@@ -228,14 +228,15 @@ exports.find = async (domain, params) => {
     }
   }
 
-  if (limit > 1000) {
-    limit = 1000
+  if (limit > 10000) {
+    limit = 10000
   }
   requestBody.size = limit
   requestBody.from = offset
 
 
   try {
+    //console.log(JSON.stringify(requestBody))
     const { body } = await elasticClient.search({
       index: domain,
       body: requestBody

@@ -38,7 +38,7 @@ exports.addEvent = async function (req, reply) {
     const domain = req.params.domain
     const createResult = await storageDriver.create(domain, req.body)
     if (createResult.body.result === 'created' || createResult.body.result === 'updated') {
-      console.log(createResult)
+      //console.log(createResult)
       return await storageDriver.read(domain, createResult.body._id)
     } else {
       reply.type('application/json').code(400)
