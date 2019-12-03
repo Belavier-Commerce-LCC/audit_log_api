@@ -18,7 +18,7 @@ global.boom = require('boom')
 
 // Require the framework and instantiate it
 const fastify = require('fastify')({
-	logger: true
+	//logger: true
 })
 
 const cors = require('cors')
