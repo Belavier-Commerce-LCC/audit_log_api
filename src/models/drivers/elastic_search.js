@@ -20,65 +20,12 @@ _init_elastic = async (domain) => {
 
 //Create new record
 exports.create = async (domain, data) => {
-  await _init_elastic(domain)
-  const queryObJ = {
-    query: {
-      bool: {
-        must: [
-          {
-            term: {
-              id: data.id
-            }
-          },
-          {
-            term: {
-              'entity.id': data.entity.id
-            }
-          },
-          {
-            term: {
-              'entity.name': data.entity.name
-            }
-          },
-          {
-            term: {
-              'entity.group': data.entity.group
-            }
-          }
-        ]
-      }
-    }
-  }
-  const exists = await elasticClient.search({
-    index: domain,
-    body: queryObJ
-  })
-
-  const recordCount = exists.body.hits.total.value
-
-  if (recordCount === 0) {
     const saveResult = await elasticClient.index({
       index: domain,
       body: data
     })
     await elasticClient.indices.refresh({ index: domain })
     return saveResult
-  } else {
-    const existRecords = exists.body.hits.hits
-    let changes = existRecords[0]._source.changes
-    data.changes.forEach((el) => {
-      changes.push(el)
-    })
-    return await elasticClient.update({
-      index: domain,
-      id: existRecords[0]._id,
-      body: {
-        doc: {
-          changes: changes
-        }
-      }
-    })
-  }
 }
 
 //Get exist data
