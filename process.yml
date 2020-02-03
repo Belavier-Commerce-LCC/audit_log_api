@@ -1,16 +1,16 @@
 apps:
   - script   : /audit_log_api/src/api.js
     name     : 'api'
-    #watch  : true
-    #instances: 2
-    #exec_mode: cluster
+    watch  : true
+    instances: 20
+    exec_mode: cluster
   - script : /audit_log_api/rabbit-src/rabbit.js
     name   : 'rabbit'
-    #watch  : true
-    #instances: 2
-    #exec_mode: cluster
+    watch  : true
+    instances: 100
+    exec_mode: cluster
   - script: /audit_log_api/rabbit-backup-src/rabbit-backup.js
     name: 'backup_rabbit'
-    #watch  : true
-    #instances: 2
-    #exec_mode: cluster
+    watch  : false
+    instances: 20
+    exec_mode: cluster

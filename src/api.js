@@ -2,6 +2,8 @@ global.__base = __dirname;
 //Load configs
 global.conf = require(`${__base}/config/config`);
 
+global.esItited = false
+
 switch (conf.storageDriver) {
 	case 'elastic_search':
 		global.storageDriver = require(`${__base}/models/drivers/elastic_search`)

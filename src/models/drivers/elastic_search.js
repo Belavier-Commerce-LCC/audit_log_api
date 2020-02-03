@@ -16,21 +16,27 @@ _init_elastic = async (domain) => {
   } else {
     throw 'Not connection to ElasticSearch server: '
   }
+  esItited = true
 }
 
 //Create new record
 exports.create = async (domain, data) => {
+  if (!esItited) {
+    await _init_elastic(domain)
+  }
     const saveResult = await elasticClient.index({
       index: domain,
       body: data
     })
-    await elasticClient.indices.refresh({ index: domain })
+    //await elasticClient.indices.refresh({ index: domain })
     return saveResult
 }
 
 //Get exist data
 exports.read = async (domain, id) => {
-  await _init_elastic(domain)
+  if (!esItited) {
+    await _init_elastic(domain)
+  }
   const params = {
     index: domain,
     body: {
@@ -47,7 +53,9 @@ exports.read = async (domain, id) => {
 
 //Get exist data
 exports.find = async (domain, params) => {
-  await _init_elastic(domain)
+  if (!esItited) {
+    await _init_elastic(domain)
+  }
   /**
    * Limit displayed records
    * @type integer limit
