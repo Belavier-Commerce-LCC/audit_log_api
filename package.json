@@ -20,7 +20,7 @@
     "concurrently": "^5.0.0",
     "cors": "^2.8.5",
     "fastify": "^2.15.1",
-    "fastify-swagger": "^2.4.0",
+    "fastify-swagger": "^5.2.0",
     "mocha": "^10.2.0",
     "mongoose": "^5.13.15"
   },
