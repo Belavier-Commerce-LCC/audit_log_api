@@ -55,7 +55,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Get devops git
-        run: cd ${{ env.BASE_DIR }} && git clone -b ${{ env.DEVOPS_BRANCH }} --progress git@github.com:belavier-commerce-lcc/rio_plus_devops.git ${{ env.BASE_DIR }}/devops
+        run: cd ${{ env.BASE_DIR }} && git clone -b ${{ env.DEVOPS_BRANCH }} --progress https://${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}@github.com/Belavier-Commerce-LCC/rio_plus_devops.git ${{ env.BASE_DIR }}/devops
 
       - name: Setup Nodejs
         uses: actions/setup-node@v1
