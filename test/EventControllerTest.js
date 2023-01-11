@@ -1,5 +1,3 @@
-// var expect    = require("chai").expect;
-// var assert = require('chai').assert;
 const describe = require('mocha').describe;
 
 const eventController = require('../src/controllers/event_controller');
