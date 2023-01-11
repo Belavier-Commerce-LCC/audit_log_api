@@ -21,7 +21,7 @@
     "cors": "^2.8.5",
     "fastify": "^2.15.1",
     "fastify-swagger": "^2.4.0",
-    "mocha": "^6.2.1",
+    "mocha": "^6.2.3",
     "mongoose": "^5.7.5"
   },
   "devDependencies": {
