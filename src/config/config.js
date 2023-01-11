@@ -15,11 +15,6 @@ exports.es_request_options = {
   error_index: process.env.ES_ERROR_INDEX || 'audit-log-errors'
 }
 
-exports.rabbitmq = {
-  server: process.env.RABBITMQ_SERVER,
-  queue: process.env.RABBITMQ_QUEUE
-}
-
 exports.swagger = {
   routePrefix: '/documentation',
   exposeRoute: true,

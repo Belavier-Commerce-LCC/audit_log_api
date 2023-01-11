@@ -19,6 +19,9 @@ amqp.connect(rabbitmq.options.server, function (error0, connection) {
     const mainExchange = rabbitmq.options.mainExchange
     const backupExchange = rabbitmq.options.backupExchange
 
+    console.log(queue)
+    console.log(backupQueue)
+
     channel.assertQueue(queue, {
       durable: true,
       arguments: {
@@ -46,11 +49,13 @@ amqp.connect(rabbitmq.options.server, function (error0, connection) {
             channel.ack(msg)
             //console.log('Saved')
           } else {
+            console.error(response);
             channel.reject(msg)
           }
         })
         .catch(
           (error) => {
+            console.error(error);
             channel.reject(msg)
           }
         )
