@@ -72,8 +72,6 @@ jobs:
         working-directory: ${{ env.BASE_DIR }}/devops/terraform/rio-plus/audit_log_lambda/
         run: |
           cd ${{ env.BASE_DIR }}/devops/terraform/rio-plus/audit_log_lambda/
-          pwd
-          ls -la
           terraform init -backend-config=${{ env.STAGE }}_conf.hcl -reconfigure
           terraform workspace select ${{ env.STAGE }}
           terraform apply -var src_path=$GITHUB_WORKSPACE -auto-approve
