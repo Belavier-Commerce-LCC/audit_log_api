@@ -17,8 +17,13 @@ jobs:
         id: vars
         run: echo ::set-output name=tag::${{ github.sha }}
 
+      - name: Create Directories & Mount EFS
+        run: |
+            mkdir ${{ env.BASE_DIR }}
+
       - name: Checkout main repo
         uses: actions/checkout@v2
+
       - name: load env variables from file
         id: envs
         run: |
