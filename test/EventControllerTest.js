@@ -7,7 +7,6 @@ describe('Event Controller Test', function () {
 		it('should return empty array', function () {
 			// let events =
 			eventController.getEvents()
-			// console.log(events)
 			// assert.typeOf(events, 'object')
 		});
 	})
