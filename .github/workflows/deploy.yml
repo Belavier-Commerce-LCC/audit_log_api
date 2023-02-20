@@ -4,7 +4,7 @@ on:
     branches:
       - rio-plus-dev
       - rio-plus-uat
-      - main
+      - master
 
 env:
   BASE_DIR: /tmp/source
