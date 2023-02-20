@@ -4,6 +4,7 @@ on:
     branches:
       - rio-plus-dev
       - rio-plus-uat
+      - main
 
 env:
   BASE_DIR: /tmp/source
@@ -27,7 +28,7 @@ jobs:
       - name: load env variables from file
         id: envs
         run: |
-          STAGE=`if [[ "${{ github.ref_name }}" == 'master' ]]; then echo "production"; elif [[ ${{ github.ref_name }} == 'rio-plus-uat' ]]; then echo 'uat'; else echo 'dev'; fi`
+          STAGE=`if [[ "${{ github.ref_name }}" == 'main' ]]; then echo "prod"; elif [[ ${{ github.ref_name }} == 'rio-plus-uat' ]]; then echo 'uat'; else echo 'dev'; fi`
           echo "STAGE=${STAGE}" >> $GITHUB_ENV
           cat ".github/${STAGE}.env" >> $GITHUB_ENV
       - name: print envs
